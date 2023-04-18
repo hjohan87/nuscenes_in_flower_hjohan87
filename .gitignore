@@ -1,6 +1,6 @@
 # Flower
 .flower_ops
-data/
+# data/
 doc/source/api_documentation
 doc/source/_build
 flwr_logs

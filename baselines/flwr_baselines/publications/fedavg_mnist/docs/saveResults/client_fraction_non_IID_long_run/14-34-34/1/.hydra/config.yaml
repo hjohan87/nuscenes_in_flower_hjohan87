@@ -1,0 +1,19 @@
+num_clients: 10
+num_rounds: 100
+num_epochs: 1
+batch_size: 32
+iid: false
+balance: false
+client_fraction: 0.8
+expected_maximum: 0.9924
+learning_rate: 0.1
+frac_eval: 1.0
+mu: 1.0
+save_path: docs/tmpResults
+fed_optimizer: saveFedAvg
+current_test: client_fraction
+eta: 0.1
+eta1: 0.1
+tau: 0.01
+get_initial_parameters:
+  _target_: utils.get_initial_parameters

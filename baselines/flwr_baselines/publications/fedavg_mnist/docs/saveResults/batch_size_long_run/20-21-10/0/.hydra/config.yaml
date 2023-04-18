@@ -1,0 +1,14 @@
+num_clients: 10
+num_rounds: 100
+num_epochs: 1
+batch_size: 10
+iid: true
+balance: true
+client_fraction: 1.0
+expected_maximum: 0.9924
+learning_rate: 0.1
+frac_eval: 1.0
+mu: 1.0
+save_path: docs/hannesResults
+fed_optimizer: SaveModelStrategyFedAvg
+current_test: num_clients

@@ -1,0 +1,9 @@
+- num_clients=8
+- num_rounds=5
+- batch_size=32
+- iid=False
+- balance=True
+- client_fraction=0.5
+- frac_eval=1.0
+- fed_optimizer=saveFedAvg
+- current_test=num_clients

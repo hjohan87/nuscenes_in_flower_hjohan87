@@ -281,10 +281,10 @@ def test(
     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
-    lattice = torch.Tensor(lattice).to(device)
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
     # print("Hej från test i model.py")
     criterion = ConstantLatticeLoss(lattice, similarity_function)
+#     lattice = torch.Tensor(lattice).to(device)
     correct, total, loss = 0, 0, 0.0
     net.eval()
     with torch.no_grad():
@@ -299,14 +299,13 @@ def test(
             total += ground_truth_trajectory.size(0)
             _, predicted = torch.max(logits, 1)
             for index, ground_truth in enumerate(ground_truth_trajectory):
-                closest_lattice_trajectory = similarity_function(lattice, ground_truth)
-                print("predicted[index]:", predicted[index])
-                print("closest_lattice_trajectory:", closest_lattice_trajectory)
+                closest_lattice_trajectory = similarity_function(torch.Tensor(lattice).to(device), ground_truth)
+                print("Predicted lattice trajectory:", predicted[index].item())
+                print("Actual closest lattice trajectory:", closest_lattice_trajectory.item())
                 correct += (predicted[index] == closest_lattice_trajectory).sum().item()
     if len(testloader.dataset) == 0:
         raise ValueError("Testloader can't be 0, exiting...")
     loss /= len(testloader.dataset)
-#     print(" len(testloader.dataset)", len(testloader.dataset))
     # Convert the tensor to a float
     loss = loss.item()
     accuracy = correct / total

@@ -114,6 +114,8 @@ def _partition_data(
 #     trainset = Subset(trainset, list(range(0, len(trainset)//1, 1))) #Daniel new line, less data selected
 #     testset = Subset(testset, list(range(0, len(testset)//1, 1))) #Daniel new line, less data selected
     
+    # print("Hej från _partition_data i dataset.py")
+
     partition_size = int(len(trainset) / num_clients)
     lengths = [partition_size] * num_clients
     print(iid)
@@ -230,11 +232,11 @@ def _loadData():
     ################################################################################################################################################
 
     # For testing
-    train_short_size = 40
+    train_short_size = 48
     short_train_img_tensor_list = train_img_tensor_list[:train_short_size]
     short_train_agent_state_vector_list = train_agent_state_vector_list[:train_short_size]
     short_train_future_xy_local_list = train_future_xy_local_list[:train_short_size]
-    val_short_size = 4
+    val_short_size = 10
     short_val_img_tensor_list = val_img_tensor_list[:val_short_size]
     short_val_agent_state_vector_list = val_agent_state_vector_list[:val_short_size]
     short_val_future_xy_local_list = val_future_xy_local_list[:val_short_size]

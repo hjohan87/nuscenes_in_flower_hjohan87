@@ -48,7 +48,8 @@ class ResNetBackbone(nn.Module):
             raise ValueError(f'Parameter version must be one of {list(RESNET_VERSION_TO_MODEL.keys())}'
                              f'. Received {version}.')
 
-        self.backbone = trim_network_at_index(RESNET_VERSION_TO_MODEL[version](), -1)
+#         self.backbone = trim_network_at_index(RESNET_VERSION_TO_MODEL[version](), -1).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+        self.backbone = trim_network_at_index(RESNET_VERSION_TO_MODEL[version](), -1).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu")) # Daniel
 
     def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
         """
@@ -57,6 +58,8 @@ class ResNetBackbone(nn.Module):
         :return: Tensor of shape [batch_size, n_convolution_filters]. For resnet50,
             the shape is [batch_size, 2048].
         """
+        
+        input_tensor = input_tensor.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu")) # Daniel new row
         backbone_features = self.backbone(input_tensor)
         return torch.flatten(backbone_features, start_dim=1)
 

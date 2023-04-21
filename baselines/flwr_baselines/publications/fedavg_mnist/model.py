@@ -56,7 +56,8 @@ class Net(nn.Module): # EXTRA TMP
                          for in_dim, out_dim in zip(n_hidden_layers[:-1], n_hidden_layers[1:])]
 
         self.head = nn.ModuleList(linear_layers)
-        self.relu = nn.ReLU()
+#         self.relu = nn.ReLU()
+        print("Hi from init")
 
     def forward(self, image_tensor: torch.Tensor,
                 agent_state_vector: torch.Tensor) -> torch.Tensor:
@@ -71,7 +72,11 @@ class Net(nn.Module): # EXTRA TMP
         logits = torch.cat([backbone_features, agent_state_vector], dim=1)
 
         for linear in self.head:
-            logits = self.relu(linear(logits))
+#             logits = self.relu(linear(logits))
+            logits = linear(logits)
+            
+        print("Hi from forward")
+
 
         return logits
 

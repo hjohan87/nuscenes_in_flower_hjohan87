@@ -207,7 +207,7 @@ class NuscenesDataset(Dataset):
 def _loadData():
     ################################################################################################################################################
     # Load data
-    version = "v1.0-mini" # v1.0-mini, v1.0-trainval
+    version = "v1.0-trainval" # v1.0-mini, v1.0-trainval
     seconds_of_history_used = 2.0 # 2.0
     sequences_per_instance = "one_sequences_per_instance" # one_sequences_per_instance, all_sequences_per_instance
 
@@ -232,11 +232,11 @@ def _loadData():
     ################################################################################################################################################
 
     # For testing
-    train_short_size = 48
+    train_short_size = 200
     short_train_img_tensor_list = train_img_tensor_list[:train_short_size]
     short_train_agent_state_vector_list = train_agent_state_vector_list[:train_short_size]
     short_train_future_xy_local_list = train_future_xy_local_list[:train_short_size]
-    val_short_size = 10
+    val_short_size = 100
     short_val_img_tensor_list = val_img_tensor_list[:val_short_size]
     short_val_agent_state_vector_list = val_agent_state_vector_list[:val_short_size]
     short_val_future_xy_local_list = val_future_xy_local_list[:val_short_size]

@@ -98,5 +98,12 @@ get_initial_parameters:
 # psudo nohup python main.py num_clients=10 num_rounds=100 batch_size=32 iid=False balance=False client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="learning_rate" learning_rate=0.1,0.01,0.001,0.0001 --multirun & 
 
 
+################################################################################################################################################
+########################################################               Nuscenes      ###########################################################
+################################################################################################################################################
+
+
+# Run 15 num_clients long run:
+# psudo nohup python main.py num_clients=1,2,4,8 num_rounds=100 batch_size=10 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" --multirun & 
 
 

@@ -1,0 +1,9 @@
+- num_clients=80
+- num_rounds=50
+- batch_size=32
+- iid=True
+- client_fraction=0.8
+- frac_eval=1.0
+- fed_optimizer=saveFedAvg
+- current_test=num_clients
+- learning_rate=0.1

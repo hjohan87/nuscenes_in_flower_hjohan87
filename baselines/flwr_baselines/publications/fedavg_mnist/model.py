@@ -56,7 +56,7 @@ class Net(nn.Module): # EXTRA TMP
                          for in_dim, out_dim in zip(n_hidden_layers[:-1], n_hidden_layers[1:])]
 
         self.head = nn.ModuleList(linear_layers)
-#         self.relu = nn.ReLU() # Daniel
+        self.relu = nn.ReLU() # Daniel
 
     def forward(self, image_tensor: torch.Tensor,
                 agent_state_vector: torch.Tensor) -> torch.Tensor:
@@ -71,8 +71,8 @@ class Net(nn.Module): # EXTRA TMP
         logits = torch.cat([backbone_features, agent_state_vector], dim=1)
 
         for linear in self.head:
-#             logits = self.relu(linear(logits)) # Daniel
-            logits = linear(logits)
+            logits = self.relu(linear(logits)) # Daniel
+#             logits = linear(logits)
 
 
         return logits
@@ -294,6 +294,7 @@ def test(
             image_tensor = image_tensor.to(device)
             agent_state_vector = agent_state_vector.to(device)
             ground_truth_trajectory = ground_truth_trajectory.to(device)
+            
             logits = net(image_tensor, agent_state_vector)
             loss += criterion(logits, ground_truth_trajectory)#.item()
 #             print("lattice shape:", lattice.shape)

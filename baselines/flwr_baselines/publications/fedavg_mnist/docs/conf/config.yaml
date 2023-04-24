@@ -104,12 +104,12 @@ get_initial_parameters:
 
 
 # Run 15.0 num_clients long run:
-# psudo nohup python main.py num_clients=1 num_rounds=100 batch_size=10 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
+# psudo nohup python main.py num_clients=1 num_rounds=50 batch_size=8 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
 # Run 15.25 num_clients long run:
-# psudo nohup python main.py num_clients=2 num_rounds=100 batch_size=10 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
+# psudo nohup python main.py num_clients=2 num_rounds=50 batch_size=8 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
 # Run 15.5 num_clients long run:
-# psudo nohup python main.py num_clients=4 num_rounds=100 batch_size=10 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
+# psudo nohup python main.py num_clients=4 num_rounds=50 batch_size=8 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
 # Run 15.75 num_clients long run:
-# psudo nohup python main.py num_clients=8 num_rounds=100 batch_size=10 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
+# psudo nohup python main.py num_clients=8 num_rounds=50 batch_size=8 iid=True client_fraction=1.0 frac_eval=1.0 fed_optimizer="saveFedAvg" current_test="num_clients" learning_rate=0.0001 & 
 
-
+# rm docs/tmpResults/*npy docs/tmpResults/*npz docs/tmpResults/*png

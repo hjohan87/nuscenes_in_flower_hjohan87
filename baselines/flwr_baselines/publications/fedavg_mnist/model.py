@@ -73,7 +73,7 @@ class Net(nn.Module): # EXTRA TMP
         for linear in self.head:
 #             logits = self.relu(linear(logits)) # Daniel
             logits = linear(logits)
-        print("no ReLu from forward")
+#         print("no ReLu from forward")
 
 
         return logits
@@ -172,10 +172,10 @@ def train(
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
     criterion = ConstantLatticeLoss(lattice, similarity_function)
 #     lr = 1e-4 # From Covernet paper: fixed learning rate of 1e−4
-    print("no fixed lr")
+#     print("no fixed lr")
 #     optimizer = torch.optim.Adam(net.parameters(), lr=lr)  # Replace <YOUR_LEARNING_RATE> with your desired learning rate
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4) # from author https://github.com/nutonomy/nuscenes-devkit/issues/578
-    print("SGD used in train")
+#     print("SGD used in train")
     net.train()
     for _ in range(epochs):
         net = _training_loop(net, trainloader, device, criterion, optimizer)
@@ -307,8 +307,8 @@ def test(
             _, predicted = torch.max(logits, 1)
             for index, ground_truth in enumerate(ground_truth_trajectory):
                 closest_lattice_trajectory = similarity_function(torch.Tensor(lattice).to(device), ground_truth)
-                print("Predicted lattice trajectory:", predicted[index].item())
-                print("Actual closest lattice trajectory:", closest_lattice_trajectory.item())
+#                 print("Predicted lattice trajectory:", predicted[index].item())
+#                 print("Actual closest lattice trajectory:", closest_lattice_trajectory.item())
                 correct += (predicted[index] == closest_lattice_trajectory).sum().item()
     if len(testloader.dataset) == 0:
         raise ValueError("Testloader can't be 0, exiting...")

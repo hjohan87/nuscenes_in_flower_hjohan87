@@ -232,11 +232,11 @@ def _loadData():
     ################################################################################################################################################
 
     # For testing
-    train_short_size = 500
+    train_short_size = 160
     short_train_img_tensor_list = train_img_tensor_list[:train_short_size]
     short_train_agent_state_vector_list = train_agent_state_vector_list[:train_short_size]
     short_train_future_xy_local_list = train_future_xy_local_list[:train_short_size]
-    val_short_size = 100
+    val_short_size = 25
     short_val_img_tensor_list = val_img_tensor_list[:val_short_size]
     short_val_agent_state_vector_list = val_agent_state_vector_list[:val_short_size]
     short_val_future_xy_local_list = val_future_xy_local_list[:val_short_size]
@@ -260,8 +260,8 @@ def _loadData():
 
 
     # Variables
-    batch_size = 10
-    shuffle = True # Set to True if you want to shuffle the data in the dataloader
+#     batch_size = 10
+#     shuffle = True # Set to True if you want to shuffle the data in the dataloader
     # num_modes = 64 # 2206, 415, 64 (match with eps_traj_set)
     # eps_traj_set = 8 # 2, 4, 8 (match with num_modes)
     # learning_rate = 1e-4 # From Covernet paper: fixed learning rate of 1e−4
@@ -274,10 +274,10 @@ def _loadData():
     val_dataset = NuscenesDataset(val_img_tensor_list, val_agent_state_vector_list, val_future_xy_local_list)
     val_shortDataset = NuscenesDataset(short_val_img_tensor_list, short_val_agent_state_vector_list, short_val_future_xy_local_list)
 
-    # Instantiate dataloaders
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle)
-    train_shortDataloader = DataLoader(train_shortDataset, batch_size=batch_size, shuffle=shuffle)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle)
-    val_shortDataloader = DataLoader(val_shortDataset, batch_size=batch_size, shuffle=shuffle)
+#     # Instantiate dataloaders
+#     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle)
+#     train_shortDataloader = DataLoader(train_shortDataset, batch_size=batch_size, shuffle=shuffle)
+#     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=shuffle)
+#     val_shortDataloader = DataLoader(val_shortDataset, batch_size=batch_size, shuffle=shuffle)
 
     return train_shortDataset, val_shortDataset

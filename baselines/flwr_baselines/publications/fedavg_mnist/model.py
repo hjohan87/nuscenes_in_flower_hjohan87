@@ -56,7 +56,7 @@ class Net(nn.Module): # EXTRA TMP
                          for in_dim, out_dim in zip(n_hidden_layers[:-1], n_hidden_layers[1:])]
 
         self.head = nn.ModuleList(linear_layers)
-        self.relu = nn.ReLU() # Daniel
+#         self.relu = nn.ReLU() # Daniel
 
     def forward(self, image_tensor: torch.Tensor,
                 agent_state_vector: torch.Tensor) -> torch.Tensor:
@@ -71,8 +71,9 @@ class Net(nn.Module): # EXTRA TMP
         logits = torch.cat([backbone_features, agent_state_vector], dim=1)
 
         for linear in self.head:
-            logits = self.relu(linear(logits)) # Daniel
-#             logits = linear(logits)
+#             logits = self.relu(linear(logits)) # Daniel
+            logits = linear(logits)
+        print("no ReLu from forward")
 
 
         return logits
@@ -170,8 +171,11 @@ def train(
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
     criterion = ConstantLatticeLoss(lattice, similarity_function)
-    lr = 1e-4 # From Covernet paper: fixed learning rate of 1e−4
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr)  # Replace <YOUR_LEARNING_RATE> with your desired learning rate
+#     lr = 1e-4 # From Covernet paper: fixed learning rate of 1e−4
+    print("no fixed lr")
+#     optimizer = torch.optim.Adam(net.parameters(), lr=lr)  # Replace <YOUR_LEARNING_RATE> with your desired learning rate
+    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4) # from author https://github.com/nutonomy/nuscenes-devkit/issues/578
+    print("SGD used in train")
     net.train()
     for _ in range(epochs):
         net = _training_loop(net, trainloader, device, criterion, optimizer)

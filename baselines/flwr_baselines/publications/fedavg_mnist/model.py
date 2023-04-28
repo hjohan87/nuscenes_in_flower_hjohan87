@@ -1,3 +1,4 @@
+import gc #Koen
 # nuScenes dev-kit.
 # Code written by Freddy Boulton, Tung Phan 2020.
 from typing import List, Tuple, Callable, Union
@@ -28,7 +29,7 @@ class Net(nn.Module): # EXTRA TMP
     # EXTRA TMP:
     def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 64,
                  n_hidden_layers: List[int] = None,
-                 input_shape: Tuple[int, int, int] = (3, 500, 500)):
+                 input_shape: Tuple[int, int, int] = (3, 250, 250)):
         """
         Inits Covernet.
         :param backbone: Backbone model. Typically ResNetBackBone or MobileNetBackbone
@@ -177,6 +178,7 @@ def train(
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4) # from author https://github.com/nutonomy/nuscenes-devkit/issues/578
 #     print("SGD used in train")
     net.train()
+    print("hej from train")
     for _ in range(epochs):
         net = _training_loop(net, trainloader, device, criterion, optimizer)
 
@@ -238,6 +240,7 @@ def _training_loop(
         loss.backward()
         optimizer.step()
 
+        gc.collect(), torch.cuda.empty_cache() #Koen
         # # Print loss for this batch
         # print(f"Epoch [{epoch+1}/{num_epochs}], Batch Loss: {loss.item():.4f}")
     return net
@@ -310,6 +313,9 @@ def test(
 #                 print("Predicted lattice trajectory:", predicted[index].item())
 #                 print("Actual closest lattice trajectory:", closest_lattice_trajectory.item())
                 correct += (predicted[index] == closest_lattice_trajectory).sum().item()
+            gc.collect(), torch.cuda.empty_cache() #Koen
+        
+        
     if len(testloader.dataset) == 0:
         raise ValueError("Testloader can't be 0, exiting...")
     loss /= len(testloader.dataset)

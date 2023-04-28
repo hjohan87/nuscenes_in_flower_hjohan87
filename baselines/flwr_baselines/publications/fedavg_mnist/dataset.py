@@ -221,22 +221,24 @@ def _loadData():
 
     # Squeeze for correct dimensions
     for i, train_img_tensor in enumerate(train_img_tensor_list):
-        train_img_tensor_list[i] = torch.squeeze(train_img_tensor, dim=0)
+        dummy = torch.nn.functional.interpolate(train_img_tensor, scale_factor=1/2, mode='bilinear')
+        train_img_tensor_list[i] = torch.squeeze(dummy, dim=0)
         train_agent_state_vector_list[i] = torch.squeeze(train_agent_state_vector_list[i], dim=0)
         
     for j, val_img_tensor in enumerate(val_img_tensor_list):
-        val_img_tensor_list[j] = torch.squeeze(val_img_tensor, dim=0)
+        dummy = torch.nn.functional.interpolate(val_img_tensor, scale_factor=1/2, mode='bilinear')
+        val_img_tensor_list[j] = torch.squeeze(dummy, dim=0)
         val_agent_state_vector_list[j] = torch.squeeze(val_agent_state_vector_list[j], dim=0)
 
         
     ################################################################################################################################################
 
     # For testing
-    train_short_size = 512
+    train_short_size = 2048
     short_train_img_tensor_list = train_img_tensor_list[:train_short_size]
     short_train_agent_state_vector_list = train_agent_state_vector_list[:train_short_size]
     short_train_future_xy_local_list = train_future_xy_local_list[:train_short_size]
-    val_short_size = 128
+    val_short_size = 512
     short_val_img_tensor_list = val_img_tensor_list[:val_short_size]
     short_val_agent_state_vector_list = val_agent_state_vector_list[:val_short_size]
     short_val_future_xy_local_list = val_future_xy_local_list[:val_short_size]

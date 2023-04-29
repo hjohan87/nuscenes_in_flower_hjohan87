@@ -178,7 +178,7 @@ def train(
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4) # from author https://github.com/nutonomy/nuscenes-devkit/issues/578
 #     print("SGD used in train")
     net.train()
-    print("hej from train")
+#     print("hej from train")
     for _ in range(epochs):
         net = _training_loop(net, trainloader, device, criterion, optimizer)
 

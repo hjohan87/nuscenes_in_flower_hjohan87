@@ -1,4 +1,7 @@
 import gc #Koen
+import os # Daniel
+
+
 # nuScenes dev-kit.
 # Code written by Freddy Boulton, Tung Phan 2020.
 from typing import List, Tuple, Callable, Union
@@ -31,7 +34,7 @@ class Net(nn.Module): # EXTRA TMP
 #                  n_hidden_layers: List[int] = None,
 #                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
     # EPSILON 4
-    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 415,
+    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 64,
                  n_hidden_layers: List[int] = None,
                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
         """
@@ -175,7 +178,7 @@ def train(
 #     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
 #         latticeData = pickle.load(f)
     # EPSILON 4
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
@@ -299,7 +302,7 @@ def test(
 #     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
 #         latticeData = pickle.load(f)
     # EPSILON 4
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
@@ -338,3 +341,105 @@ def test(
     # print(f"total: {total}, correct: {correct}") #Daniel
     return loss, accuracy
     
+    
+    
+    ################################################################################################################################################
+    
+    
+def testNuscenes(
+    net: nn.Module, testloader: DataLoader, device: torch.device
+) -> Tuple[float, float]:
+    """Evaluate the network on the entire test set.
+
+    Parameters
+    ----------
+    net : nn.Module
+        The neural network to test.
+    testloader : DataLoader
+        The DataLoader containing the data to test the network on.
+    device : torch.device
+        The device on which the model should be tested, either 'cpu' or 'cuda'.
+
+    Returns
+    -------
+    Tuple[float, float]
+        The loss and the accuracy of the input model on the given data.
+    """
+
+
+    # NEW, for nuScenes
+#     # EPSILON 8
+#     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+#         latticeData = pickle.load(f)
+    # EPSILON 4
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+        latticeData = pickle.load(f)
+    lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
+    similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
+    print("Hej från testNuscenes i model.py")
+    criterion = ConstantLatticeLoss(lattice, similarity_function)
+#     lattice = torch.Tensor(lattice).to(device)
+    correct, total, loss = 0, 0, 0.0
+    net.eval()
+    file_path = "docs/tmpResults"
+    val_logits_list = [] # To flower
+    val_gt_traj_list = [] # To flower
+    val_logits_file = f'{file_path}/val_logits.npy' # To flower
+    val_gt_traj_file = f'{file_path}/val_ground_truth.npy' # To flower
+    
+    with torch.no_grad():
+        for image_tensor, agent_state_vector, ground_truth_trajectory in testloader:
+            image_tensor = image_tensor.to(device)
+            agent_state_vector = agent_state_vector.to(device)
+            ground_truth_trajectory = ground_truth_trajectory.to(device)
+            
+            logits = net(image_tensor, agent_state_vector)
+            loss += criterion(logits, ground_truth_trajectory)#.item()
+#             print("lattice shape:", lattice.shape)
+#             print("ground_truth_trajectory shape:", ground_truth_trajectory.shape)
+            total += ground_truth_trajectory.size(0)
+            _, predicted = torch.max(logits, 1)
+            for index, ground_truth in enumerate(ground_truth_trajectory):
+                closest_lattice_trajectory = similarity_function(torch.Tensor(lattice).to(device), ground_truth)
+#                 print("Predicted lattice trajectory:", predicted[index].item())
+#                 print("Actual closest lattice trajectory:", closest_lattice_trajectory.item())
+                correct += (predicted[index] == closest_lattice_trajectory).sum().item()
+            
+            gc.collect(), torch.cuda.empty_cache() #Koen
+        
+            # Create lists of saved data
+            val_logits_list.append(logits.cpu().numpy()) # To flower
+            val_gt_traj_list.append(ground_truth_trajectory.cpu().numpy()) # To flower
+            
+            
+    # Save logits and ground_truth_trajectory in separate files
+    if os.path.exists(val_logits_file) and os.path.exists(val_gt_traj_file):
+        print('The files exist!')
+        val_logits_array = np.load(val_logits_file) # To flower
+        val_gt_traj_array = np.load(val_gt_traj_file) # To flower
+        # Concatenate the lists to create numpy arrays
+        val_logits_array = np.concatenate([val_logits_array] + val_logits_list, axis=0) # To flower
+        val_gt_traj_array = np.concatenate([val_gt_traj_array] + val_gt_traj_list, axis=0) # To flower
+    else:
+        print('The file does not exist.')
+        # Concatenate the lists to create numpy arrays
+        val_logits_array = np.concatenate(val_logits_list, axis=0) # To flower
+        val_gt_traj_array = np.concatenate(val_gt_traj_list, axis=0) # To flower
+        
+ 
+    # save numpy arrays in files
+    np.save(val_logits_file, val_logits_array) # To flower
+    np.save(val_gt_traj_file, val_gt_traj_array) # To flower
+    # Save weights
+    torch.save(net.state_dict(), f'{file_path}/weights.pth') # To flower
+    
+        
+    if len(testloader.dataset) == 0:
+        raise ValueError("Testloader can't be 0, exiting...")
+    loss /= len(testloader.dataset)
+    # Convert the tensor to a float
+    loss = loss.item()
+    accuracy = correct / total
+
+    # print(f"total: {total}, correct: {correct}") #Daniel
+    return loss, accuracy

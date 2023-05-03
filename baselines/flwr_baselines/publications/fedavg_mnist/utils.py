@@ -244,7 +244,9 @@ def gen_evaluate_fn(
         net.load_state_dict(state_dict, strict=True)
         net.to(device)
 
-        loss, accuracy = model.test(net, testloader, device=device)
+#         loss, accuracy = model.test(net, testloader, device=device)
+        loss, accuracy = model.testNuscenes(net, testloader, device=device) # Daniel to flower
+
         # return statistics
         return loss, {"accuracy": accuracy} # Hannes 
         #return loss, accuracy # Hannes

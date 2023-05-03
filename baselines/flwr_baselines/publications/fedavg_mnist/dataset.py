@@ -120,27 +120,31 @@ def _partition_data(
     lengths = [partition_size] * num_clients
     print(f"iid = {iid}")
     if iid:
-        datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed))
-    else:
-        # New for Nuscenes (TODO):
         if balance:
-            
-#             If from behind: 865 train both
-#             If from front: 727 both
-            balanced_dataset = Subset(trainset, range(319,len(trainset)-1))
-            dataset_len = len(balanced_dataset)
-            print(f"dataset_len = {dataset_len}")
-            shard_size = int(dataset_len/num_clients)
-            tmp = []
-            for idx in range(num_clients):
-                tmp.append(Subset(sorted_data, range(shardsize*num_clients,shardsize*(num_clients+1))))    
-            datasets = ConcatDataset(tmp)
-        
-            # 1321 - 138 - 319 in Boston = 864
-            # 865 -1 in Singapore = 864
-            # Tot 1728
-
+            datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed)) # To change to 864,864
         else: 
+            datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed))
+    else:
+        print(f"non-iid")
+        # New for Nuscenes (TODO):
+#         if balance:
+            
+# #             If from behind: 865 train both
+# #             If from front: 727 both
+#             balanced_dataset = Subset(trainset, range(319,len(trainset)-1))
+#             dataset_len = len(balanced_dataset)
+#             print(f"dataset_len = {dataset_len}")
+#             shard_size = int(dataset_len/num_clients)
+#             tmp = []
+#             for idx in range(num_clients):
+#                 tmp.append(Subset(sorted_data, range(shard_size*num_clients,shard_size*(num_clients+1))))    
+#             datasets = ConcatDataset(tmp)
+        
+#             # 1321 - 138 - 319 in Boston = 864
+#             # 865 -1 in Singapore = 864
+#             # Tot 1728
+
+#         else: 
             # Boston: 1321, Singapore: 865
             
 #             Training set:(B:1183, S:865)
@@ -170,6 +174,7 @@ def _partition_data(
         
         
     return datasets, testset
+
 
 
 def _balance_classes(
@@ -247,14 +252,15 @@ def _loadData():
     val_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_agent_state_vector_list.pt")
     val_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_future_xy_local_list.pt")
 
+    scale_factor = 1/50
     # Squeeze for correct dimensions
     for i, train_img_tensor in enumerate(train_img_tensor_list):
-        dummy = torch.nn.functional.interpolate(train_img_tensor, scale_factor=1/10, mode='bilinear')
+        dummy = torch.nn.functional.interpolate(train_img_tensor, scale_factor=scale_factor, mode='bilinear')
         train_img_tensor_list[i] = torch.squeeze(dummy, dim=0)
         train_agent_state_vector_list[i] = torch.squeeze(train_agent_state_vector_list[i], dim=0)
         
     for j, val_img_tensor in enumerate(val_img_tensor_list):
-        dummy = torch.nn.functional.interpolate(val_img_tensor, scale_factor=1/10, mode='bilinear')
+        dummy = torch.nn.functional.interpolate(val_img_tensor, scale_factor=scale_factor, mode='bilinear')
         val_img_tensor_list[j] = torch.squeeze(dummy, dim=0)
         val_agent_state_vector_list[j] = torch.squeeze(val_agent_state_vector_list[j], dim=0)
 

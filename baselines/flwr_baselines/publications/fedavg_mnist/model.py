@@ -26,8 +26,12 @@ class Net(nn.Module): # EXTRA TMP
     # def __init__(self, backbone: nn.Module, num_modes: int,
     #              n_hidden_layers: List[int] = None,
     #              input_shape: Tuple[int, int, int] = (3, 500, 500)):
-    # EXTRA TMP:
-    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 64,
+    # EPSILON 8
+#     def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 64,
+#                  n_hidden_layers: List[int] = None,
+#                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
+    # EPSILON 4
+    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 415,
                  n_hidden_layers: List[int] = None,
                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
         """
@@ -167,7 +171,11 @@ def train(
 
     # NEW, from nuScenes
     # Lattice and similarity function
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+#     # EPSILON 8
+#     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+#         latticeData = pickle.load(f)
+    # EPSILON 4
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
@@ -287,7 +295,11 @@ def test(
 
 
     # NEW, for nuScenes
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+#     # EPSILON 8
+#     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+#         latticeData = pickle.load(f)
+    # EPSILON 4
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function

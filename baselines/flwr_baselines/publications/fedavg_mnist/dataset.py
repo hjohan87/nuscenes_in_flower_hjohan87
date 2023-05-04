@@ -118,12 +118,19 @@ def _partition_data(
 
     partition_size = int(len(trainset) / num_clients)
     lengths = [partition_size] * num_clients
-    print(f"iid = {iid}")
     if iid:
         if balance:
-            datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed)) # To change to 864,864
+            print("iid real, 864+864")
+            balanced_trainset = Subset(trainset, range(319,len(trainset)-1))
+            partition_size = int(len(balanced_trainset) / num_clients)
+            lengths = [partition_size] * num_clients
+            print(f"Length of train set = {len(balanced_trainset)}")
+            datasets = random_split(balanced_trainset, lengths, torch.Generator().manual_seed(seed))
+            
         else: 
+            print("iid fake, not 864+864")
             datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed))
+    
     else:
         print(f"non-iid")
         # New for Nuscenes (TODO):
@@ -243,16 +250,25 @@ def _loadData():
     version = "v1.0-trainval" # v1.0-mini, v1.0-trainval
     seconds_of_history_used = 2.0 # 2.0
     sequences_per_instance = "one_sequences_per_instance" # one_sequences_per_instance, all_sequences_per_instance
+#       Non-sorted
+#     train_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_img_tensor_list.pt")
+#     train_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_agent_state_vector_list.pt")
+#     train_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_future_xy_local_list.pt")
 
-    train_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_img_tensor_list.pt")
-    train_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_agent_state_vector_list.pt")
-    train_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/train_future_xy_local_list.pt")
+#     val_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_img_tensor_list.pt")
+#     val_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_agent_state_vector_list.pt")
+#     val_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_future_xy_local_list.pt")
 
-    val_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_img_tensor_list.pt")
-    val_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_agent_state_vector_list.pt")
-    val_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/val_future_xy_local_list.pt")
+#      Sorted
+    train_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=1321_S=865_train_img_tensor_list.pt")
+    train_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=1321_S=865_train_agent_state_vector_list.pt")
+    train_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=1321_S=865_train_future_xy_local_list.pt")
 
-    scale_factor = 1/50
+    val_img_tensor_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=349_S=254_val_img_tensor_list.pt")
+    val_agent_state_vector_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=349_S=254_val_agent_state_vector_list.pt")
+    val_future_xy_local_list = torch.load(f"dataLists/{version}/{sequences_per_instance}/{seconds_of_history_used}/location_B=349_S=254_val_future_xy_local_list.pt")
+
+    scale_factor = 1/2
     # Squeeze for correct dimensions
     for i, train_img_tensor in enumerate(train_img_tensor_list):
         dummy = torch.nn.functional.interpolate(train_img_tensor, scale_factor=scale_factor, mode='bilinear')

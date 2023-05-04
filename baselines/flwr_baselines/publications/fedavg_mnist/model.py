@@ -34,7 +34,7 @@ class Net(nn.Module): # EXTRA TMP
 #                  n_hidden_layers: List[int] = None,
 #                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
     # EPSILON 4
-    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 64,
+    def __init__(self, backbone: nn.Module = ResNetBackbone('resnet50'), num_modes: int = 415,
                  n_hidden_layers: List[int] = None,
                  input_shape: Tuple[int, int, int] = (3, 250, 250)):
         """
@@ -178,7 +178,7 @@ def train(
 #     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
 #         latticeData = pickle.load(f)
     # EPSILON 4
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
@@ -302,7 +302,7 @@ def test(
 #     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
 #         latticeData = pickle.load(f)
     # EPSILON 4
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function
@@ -372,7 +372,7 @@ def testNuscenes(
 #     with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
 #         latticeData = pickle.load(f)
     # EPSILON 4
-    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_8.pkl', 'rb') as f:
+    with open('data/sets/nuscenes-prediction-challenge-trajectory-sets/epsilon_4.pkl', 'rb') as f:
         latticeData = pickle.load(f)
     lattice = np.array(latticeData) # a numpy array of shape [num_modes, n_timesteps, state_dim]
     similarity_function = mean_pointwise_l2_distance  # You can also define your own similarity function

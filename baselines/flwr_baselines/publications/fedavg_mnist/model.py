@@ -382,11 +382,12 @@ def testNuscenes(
     correct, total, loss = 0, 0, 0.0
     net.eval()
     file_path = "docs/tmpResults"
-    val_logits_list = [] # To flower
+    val_indices_list = [] # To flower
+    val_probabilities_list = [] # To flower
     val_gt_traj_list = [] # To flower
-    val_logits_file = f'{file_path}/val_logits.npy' # To flower
+    val_indices_file = f'{file_path}/val_indices.npy' # To flower 
+    val_probabilities_file = f'{file_path}/val_probabilities.npy' # To flower 
     val_gt_traj_file = f'{file_path}/val_ground_truth.npy' # To flower
-    
     with torch.no_grad():
         for image_tensor, agent_state_vector, ground_truth_trajectory in testloader:
             image_tensor = image_tensor.to(device)
@@ -407,29 +408,53 @@ def testNuscenes(
             
             gc.collect(), torch.cuda.empty_cache() #Koen
         
+        
+            k_nr_of_trajectories = 15 # how many to save
+            softmaxy = torch.nn.Softmax(dim=1)
+            probabilities = softmaxy(logits).cpu()
+#             print(f"probabilities.shape = {probabilities.shape}")
+            sortedProbabilitiesIndices = np.flip(np.array(np.argsort(probabilities, axis=-1)), axis=-1).copy()
+#             print(f"sortedProbabilitiesIndices.shape = {sortedProbabilitiesIndices.shape}")
+            sortedProbabilities = np.array(np.take_along_axis(probabilities, sortedProbabilitiesIndices, axis=-1))
+#             print(f"sortedProbabilities.shape = {sortedProbabilities.shape}")
+            top_k_indices = sortedProbabilitiesIndices[:,:k_nr_of_trajectories]
+#             print(f"top_k_indices.shape = {top_k_indices.shape}")
+            top_k_probabilities = sortedProbabilities[:,:k_nr_of_trajectories]
+#             print(f"top_k_probabilities.shape = {top_k_probabilities.shape}")
+
             # Create lists of saved data
-            val_logits_list.append(logits.cpu().numpy()) # To flower
+#             val_logits_list.append(logits.cpu().numpy()) # To flower OLD
+
+            val_indices_list.append(top_k_indices) # To flower
+            val_probabilities_list.append(top_k_probabilities) # To flower
             val_gt_traj_list.append(ground_truth_trajectory.cpu().numpy()) # To flower
             
             
     # Save logits and ground_truth_trajectory in separate files
-    if os.path.exists(val_logits_file) and os.path.exists(val_gt_traj_file):
+    if os.path.exists(val_indices_file) and os.path.exists(val_probabilities_file) and os.path.exists(val_gt_traj_file):
         print('The files exist!')
-        val_logits_array = np.load(val_logits_file) # To flower
+        val_indices_array = np.load(val_indices_file) # To flower
+        val_probabilities_array = np.load(val_probabilities_file) # To flower
         val_gt_traj_array = np.load(val_gt_traj_file) # To flower
         # Concatenate the lists to create numpy arrays
-        val_logits_array = np.concatenate([val_logits_array] + val_logits_list, axis=0) # To flower
+#         val_logits_array = np.concatenate([val_logits_array] + val_logits_list, axis=0) # To flower OLD
+        val_indices_array = np.concatenate([val_indices_array] + val_indices_list, axis=0) # To flower
+        val_probabilities_array = np.concatenate([val_probabilities_array] + val_probabilities_list, axis=0) # To flower
         val_gt_traj_array = np.concatenate([val_gt_traj_array] + val_gt_traj_list, axis=0) # To flower
     else:
-        print('The file does not exist.')
+        print('The files does not exist.')
         # Concatenate the lists to create numpy arrays
-        val_logits_array = np.concatenate(val_logits_list, axis=0) # To flower
+        val_indices_array = np.concatenate(val_indices_list, axis=0) # To flower
+        val_probabilities_array = np.concatenate(val_probabilities_list, axis=0) # To flower
         val_gt_traj_array = np.concatenate(val_gt_traj_list, axis=0) # To flower
         
  
     # save numpy arrays in files
-    np.save(val_logits_file, val_logits_array) # To flower
+    np.save(val_indices_file, val_indices_array) # To flower
+    np.save(val_probabilities_file, val_probabilities_array) # To flower
     np.save(val_gt_traj_file, val_gt_traj_array) # To flower
+    
+    
     # Save weights
     torch.save(net.state_dict(), f'{file_path}/weights.pth') # To flower
     

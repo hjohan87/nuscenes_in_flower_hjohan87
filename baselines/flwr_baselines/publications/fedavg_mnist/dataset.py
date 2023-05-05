@@ -120,7 +120,7 @@ def _partition_data(
     lengths = [partition_size] * num_clients
     if iid:
         if balance:
-            print("iid real, 864+864")
+            print("IID and balanced: in total 1728, 864 from Boston and 864 from Singapore. Distributed randomly between clients.")
             balanced_trainset = Subset(trainset, range(319,len(trainset)-1))
             partition_size = int(len(balanced_trainset) / num_clients)
             lengths = [partition_size] * num_clients
@@ -128,57 +128,55 @@ def _partition_data(
             datasets = random_split(balanced_trainset, lengths, torch.Generator().manual_seed(seed))
             
         else: 
-            print("iid fake, not 864+864")
+            print("IID and not balanced: in total 2048, 1183 from Boston and 865 from Singapore. Distributed randomly between clients. ")
             datasets = random_split(trainset, lengths, torch.Generator().manual_seed(seed))
     
     else:
-        print(f"non-iid")
-        # New for Nuscenes (TODO):
-#         if balance:
+        if balance:
+            print("non-IID and balanced: in total 1728, 864 from Boston and 864 from Singapore. Distributed city-wise between clients.")
+            balanced_trainset = Subset(trainset, range(319,len(trainset)-1))
+            partition_size = int(len(balanced_trainset) / num_clients)
+            lengths = [partition_size] * num_clients
+            print(f"Length of train set = {len(balanced_trainset)}")
             
-# #             If from behind: 865 train both
-# #             If from front: 727 both
-#             balanced_dataset = Subset(trainset, range(319,len(trainset)-1))
-#             dataset_len = len(balanced_dataset)
-#             print(f"dataset_len = {dataset_len}")
-#             shard_size = int(dataset_len/num_clients)
-#             tmp = []
-#             for idx in range(num_clients):
-#                 tmp.append(Subset(sorted_data, range(shard_size*num_clients,shard_size*(num_clients+1))))    
-#             datasets = ConcatDataset(tmp)
-        
-#             # 1321 - 138 - 319 in Boston = 864
-#             # 865 -1 in Singapore = 864
-#             # Tot 1728
-
-#         else: 
-            # Boston: 1321, Singapore: 865
+            indices = list(range(len(balanced_trainset)))
+            start = 0
+            datasets = []
+            for i in range(num_clients):
+                end = start + partition_size
+                subset_indices = indices[start:end]
+                subset = Subset(balanced_trainset, subset_indices)
+                print(f"Lenght of subset = {len(subset)}")
+                datasets.append(subset)
+                start = end
+            print(f"Lenght of datasets = {len(datasets)}")
             
-#             Training set:(B:1183, S:865)
-#             Validation set:(B:258, S:254)
-        
-    
-    
-#         OLD from MNIST
-#         if balance:
-#             trainset = _balance_classes(trainset, seed)
-#             partition_size = int(len(trainset) / num_clients)
-#         shard_size = int(partition_size / 2)
-#         idxs = trainset.targets.argsort()
-#         sorted_data = Subset(trainset, idxs)
-#         tmp = []
-#         for idx in range(num_clients * 2):
-#             tmp.append(
-#                 Subset(sorted_data, np.arange(shard_size * idx, shard_size * (idx + 1)))
-#             )
-#         idxs_list = torch.randperm(
-#             num_clients * 2, generator=torch.Generator().manual_seed(seed)
-#         )
-#         datasets = [
-#             ConcatDataset((tmp[idxs_list[2 * i]], tmp[idxs_list[2 * i + 1]]))
-#             for i in range(num_clients)
-#         ]
-        
+        else:
+            print("non-IID and not balanced: in total 2048, 1183 from Boston and 865 from Singapore. Distributed city-wise between clients.")
+            print("But in practice: in total 2016, 1152 from Boston and 864 from Singapore. Distributed city-wise between clients.")
+            boston_trainset = Subset(trainset, range(0,1152))
+            singapore_trainset = Subset(trainset, range(2048-864,len(trainset)))
+            print(f"Length of Boston_trainset = {len(boston_trainset)}")
+            print(f" Length ofSingapore_trainset = {len(singapore_trainset)}")
+            
+            half_of_clients = int(num_clients/2)
+                                     
+            partition_size_boston = int(len(boston_trainset)/half_of_clients)
+            lengths_boston = [partition_size_boston] * half_of_clients
+            datasets_boston = random_split(boston_trainset, lengths_boston, torch.Generator().manual_seed(seed))
+                                     
+            partition_size_singapore = int(len(singapore_trainset)/half_of_clients)
+            lengths_singapore = [partition_size_singapore] * half_of_clients
+            datasets_singapore = random_split(singapore_trainset, lengths_singapore, torch.Generator().manual_seed(seed))
+                                
+            # datasets = datasets_boston + datasets_singapore
+            datasets = []
+            for subset in datasets_boston:
+                print(f"Lenght of Boston subset = {len(subset)}")
+                datasets.append(subset)
+            for subset in datasets_singapore:
+                print(f"Lenght of Singapore subset = {len(subset)}")
+                datasets.append(subset)
         
     return datasets, testset
 
